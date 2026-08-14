@@ -1,2 +1,9 @@
-# Large assessment dataset — keep local only
+# Large local assets not needed for the manual
 PollutionAssessFiles/
+VisualizationModule/
+
+# Backups and Windows metadata
+*Copy*
+*backup*
+*baclup*
+*.Zone.Identifier

@@ -1,8 +1,6 @@
-# Documentation — Multisensory Digital Twins
+# Multisensory Digital Twins — User Manual
 
-Workflow notes for the **multisensory user experience assessment** framework used in this project (urban digital twin + environmental / pedestrian models).
-
-Python scripts, Grasshopper scripts, and user guidance bridging the tools are developed in this project.
+Workflow documentation for the **multisensory user experience assessment** framework (AMUSE): urban digital twin + pedestrian and environmental models for design-stage evaluation.
 
 ---
 
@@ -10,30 +8,35 @@ Python scripts, Grasshopper scripts, and user guidance bridging the tools are de
 
 **[MULTISENSORY_DIGITAL_TWINS.md](MULTISENSORY_DIGITAL_TWINS.md)**
 
-- **§0** — overall framework  
-- **§1** — file preparation (detailed requirements for design alternatives)  
-- **§§2–8** — each module with the same two subsections: **Data** (short text; details live in §1) and **Model / software settings**
-
 | § | Topic |
 |---|-------|
-| 0 | Overall framework |
-| 1 | File preparation |
-| 2 | Macroscopic pedestrian flow |
-| 3 | Microscopic pedestrian flow |
-| 4 | Sunlight |
-| 5 | Outdoor wind |
-| 6 | Traffic pollution CFD |
-| 7 | Heat |
-| 8 | Noise |
+| [1](#1-introduction-and-overview) | Introduction and overview (aim, workflow, data, software) |
+| [2](#2-macroscopic-pedestrian-flow-simulation) | Macroscopic pedestrian flow (PEDMAC) |
+| [3](#3-microscopic-pedestrian-flow-simulation) | Microscopic pedestrian flow |
+| [4](#4-sunlight) | Sunlight |
+| [5](#5-wind-simulation) | Outdoor wind |
+| [6](#6-traffic-pollution-simulation) | Traffic pollution CFD |
+| [7](#7-urban-heat-simulation) | Urban heat |
+| [8](#8-noise) | Noise |
+| [9](#9-visibility-and-visual-quality-assessment) | Visibility and visual quality |
+| [A](#appendix) | Appendix (scripts, designer teams, glossary) |
+
+Each simulation section includes a brief **Data | Software | Output** table at the top.
 
 ---
 
-## Related assets
+## Figures
 
-| Asset | Notes |
-|-------|-------|
-| `figures/framework_overall.png` | Framework diagram (§0) |
-| `figures/file_prep_figure_1.png` / `figures/file_prep_figure_2.png` | File-preparation examples (§1) |
-| `Grasshopper_scripts.gh` | GH scripts |
-| `demo_model.3dm` | Demo Rhino model |
-| `figures/snapshot_of_gh_scripts.png`, `figures/Result1.png`, `figures/Result2.png` | Extra figures (optional) |
+| File | Used in |
+|------|---------|
+| `figures/framework_overall.png` | §1 workflow (Figure 1) |
+| `figures/file_prep_figure_1.png`, `figures/file_prep_figure_2.png` | §1 file preparation |
+| `figures/snapshot_of_gh_scripts.png` | §1 software (Grasshopper) |
+| `figures/Result1.png`, `figures/Result2.png` | Optional examples |
+
+---
+
+## Repository
+
+- **GitLab:** [xcarcity/digital-twin/en-shan/docs](https://gitlab.tudelft.nl/xcarcity/digital-twin/en-shan/docs)
+- **GitHub (planned):** `c1309928130-oss/MultSensory-Digital-Twins`
