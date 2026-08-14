@@ -6,7 +6,8 @@
 </h1>
 
 
-This project presents an assessment framework, **AMUSE**, for **A**ssessing **M**ultisensory **US**er **E**xperience.    
+This project presents an workflow, or assessment framework, **AMUSE**, for **A**ssessing **M**ultisensory **US**er **E**xperience.
+
 
 
 ## Table of Contents
@@ -20,9 +21,8 @@ This project presents an assessment framework, **AMUSE**, for **A**ssessing **M*
 - [7. Urban heat simulation](#7-urban-heat-simulation)
 - [8. Traffic noise simulation](#8-traffic-noise-simulation)
 - [9. Visibility and visual quality assessment](#9-visibility-and-visual-quality-assessment)
-- [Appendix 1. Grasshopper and Python scripts](#appendix-1-grasshopper-and-python-scripts)
-- [Appendix 2. Data preparation manual for designer teams](#appendix-2-data-preparation-manual-for-designer-teams)
-- [Appendix 3. Glossary](#appendix-3-glossary)
+- [Appendix 1. Data preparation manual for designer teams](#appendix-1-data-preparation-manual-for-designer-teams)
+- [Appendix 2. Glossary](#appendix-2-glossary)
 - [Contributions](#Contributions)
 
 ## 1. Introduction and overview
@@ -30,45 +30,39 @@ This project presents an assessment framework, **AMUSE**, for **A**ssessing **M*
 
 ### Aim
 
-[User experience](https://www.sciencedirect.com/science/article/pii/S0195925524002725) is a key consideration in urban design. Assessing it in design proposals supports evaluation and iteration before a scheme is built.
+[User experience](https://www.sciencedirect.com/science/article/pii/S0195925524002725) is a key consideration in urban design. Assessing it in design proposals supports design evaluation and iteration before a scheme is built.
+Multisensory user experience assessment is still uncommon. Sensory qualities (movement, visual comfort, sunlight, wind, noise, pollution, etc.) are often studied separately across different disciplines, with separeated datasets, models, and software, which make the results hard to be compared and synethesized. 
 
-Multisensory street-level assessment is still uncommon. Sensory qualities (movement, visual comfort, sunlight, wind, noise, pollution, etc.) are often studied separately — across different disciplines, datasets, models, and software — so results are hard to compare or combine. This documentation describes a workflow that brings these assessments together for **design-stage** review.
-
-The aim is to assess **multisensory pedestrian / street-level user experience** in a design or case-study area by combining:
-
-- pedestrian demand and movement,
-- visual quality of the streetscape,
-- outdoor environmental conditions (sunlight, wind, noise, pollution),
-
-into comparable **maps / indicators** that can be overlaid and synthesised to see alignment or conflicts between qualities.
-
-The scope matches typical urban-design practice: **several square kilometres**, with street-level outputs at **metre-scale** resolution (e.g. analysis points / grids; traffic noise sampled at about 5&nbsp;m). Climate boundary files (EPW) remain site-scale inputs for the whole case, not a fine spatial grid.
+This project establishes a workflow for assessing multisensory user experience in a design or case-study area at the **design stage**. The assessments are brought together as comparable maps of indicator values, which can be overlaid and synthesised to see alignment or conflicts of different spatial qualities.
+The assessments scope matches typical urban-design practice, with **case area sizes** of several square kilometres, and street-level outputs at a **spatial resolution** at metre scales.
 
 ### Workflow
 
-Figure 1 summarises the workflow. **Design data** (2D/3D geometry, land use, climate, and traffic inputs) feed a set of **simulation models** for pedestrian movement, visibility, visual quality, sunlight, wind, pollution, heat, and noise. Each model produces street-level **maps / indicators** that can be compared and overlaid. **[Python scripts](#python-scripts)** and **[Grasshopper scripts](#grasshopper-scripts)** connect platforms and plugins across the workflow.
+Figure 1 summarises the workflow. The simulations cover **macroscopic and microscopic pedestrian movement**, **visibility**, **visual quality**, **sunlight**, **wind**, **pollution**, **heat**, and **noise**.
+
+Each simulation has **input data**, **software**, and **output**. The workflow uses both existing software and self-developed software. Self-developed scripts bridge different parts of the workflow where needed. A final step overlays the different output maps.
 
 <p align="center">
   <a href="./figures/framework_overall.png" target="_blank">
-  <img src="./figures/framework_overall.png" alt="Overall framework diagram: data, models, and UX metrics" width="800"/>
+  <img src="./figures/framework_overall.png" alt="Overall workflow diagram: data, models, and UX metrics" width="800"/>
   </a>
 </p>
-<p align="center">Figure 1. Overall framework</p>
+<p align="center">Figure 1. Overall workflow</p>
 
 
-Each quality can be assessed individually (separate **data**, **software/method**, and **output mapping**). Some **input data are shared** across simulations (e.g. 3D building geometries for sunlight, wind, noise, and pollution). **Output maps** can be overlaid on the same street-level grid to compare qualities. Some modules also depend on **outputs of other modules**:
+Some input data are shared across simulations (e.g. 3D building geometries for sunlight, wind, noise, and pollution). Output maps can be overlaid on the same street-level grid to compare qualities. Some modules also depend on outputs of other modules:
 
 - [Wind](#5-wind-simulation) results provide the basis for [traffic pollution](#6-traffic-pollution-simulation) (wind field as the transport medium) and [urban heat](#7-urban-heat-simulation). Wind, heat, and pollution can all be regarded as CFD (computational fluid dynamics) workflows.
 - The [macroscopic pedestrian model](#2-macroscopic-pedestrian-flow-simulation) produces demand / OD outputs that feed [microscopic pedestrian simulation](#3-microscopic-pedestrian-flow-simulation).
 - Microscopic [trajectories](#3-microscopic-pedestrian-flow-simulation) are used in [visual quality assessment](#9-visibility-and-visual-quality-assessment) to place simulated pedestrians in scene views.
 
-Methods vary by module (e.g. network-based assignment, grid- or probe-based environmental simulation, agent-based microscopic pedestrian simulation).
+Methods vary by module. [Microscopic pedestrian simulation](#3-microscopic-pedestrian-flow-simulation) and [visual quality assessment](#9-visibility-and-visual-quality-assessment) are **agent-based**: they follow simulated user trajectories. The other assessments are **grid-based**: the study area is divided into small cells that serve as computing units. [Macroscopic pedestrian flow prediction](#2-macroscopic-pedestrian-flow-simulation) is more complex. It follows a classic four-step traffic modelling framework and uses the road network, building information, and travel data.
 
 
 
 ### Data 
 
-The framework is intended for use at the **design stage**. It does not require case-specific measured real-world data (e.g. real-world street photos, pedestrian counts). Instead, it works with design proposals — building locations, geometries, and functions, and standard reference datasets such as climate files and national travel surveys — which are already available when design alternatives are being compared. To prepare the data, see [Appendix 2 (Data preparation manual for designer teams)](#appendix-2-data-preparation-manual-for-designer-teams).
+The workflow is intended for use at the **design stage**. It does not require case-specific measured real-world data (e.g. real-world street photos, pedestrian counts). Instead, it works with design proposals (building locations, geometries, and functions) and standard reference datasets such as climate files and national travel surveys, which are already available when design alternatives are being compared. To prepare the data, see [Appendix 1 (Data preparation manual for designer teams)](#appendix-1-data-preparation-manual-for-designer-teams).
 
 
 <!-- Different assessment modules share overlapping input requirements. The table below summarises the main data types and which analyses they support. A practical reading order is to skim the assessment methods in the later sections first, then return here to see which data each one needs. -->
@@ -115,7 +109,9 @@ The framework is intended for use at the **design stage**. It does not require c
 <!-- ### Explanations on data  -->
 Data file formats:
 - *Vehicle flow data*: Refers to the hourly vehicle number and vehicle speed on road links, (e.g., 750 cars/hour on De Boelelaan street, maximum speed 50km/h, in morning peak hours on a weekday). In this project, the data was aquired from Amsterdam municipality, exported from *<a href="https://maps.amsterdam.nl/verkeersprognoses/"><img src="https://www.google.com/s2/favicons?domain=maps.amsterdam.nl&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">VMA</a>* model that runs on *<a href="https://www.goudappel.nl/expertises/Data-en-IT-oplossingen/OmniTRANS-Powered-by-Bentley-OpenPaths"><img src="https://www.google.com/s2/favicons?domain=goudappel.nl&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">OmniTRANS</a>* software.
-- *Climate data*: <a href="https://designbuilder.co.uk/cahelp/Content/EnergyPlusWeatherFileFormat.htm"><img src="https://www.google.com/s2/favicons?domain=designbuilder.co.uk&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">EPW</a> — hourly weather file for a single weather-station location (e.g. solar radiation, temperature, wind), not an average over a mapped area. For the Zuidas case we used the <a href="https://climate.onebuilding.org/WMO_Region_6_Europe/NLD_Netherlands/NH_Noord-Holland/NLD_NH_Amsterdam-Schipol.AP.062400_TMYx.zip">Amsterdam–Schiphol Airport TMYx</a> file (WMO 06240) as a regional climate approximation (~8–9&nbsp;km from Zuidas).
+- *Climate data*: <a href="https://designbuilder.co.uk/cahelp/Content/EnergyPlusWeatherFileFormat.htm"><img src="https://www.google.com/s2/favicons?domain=designbuilder.co.uk&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">EPW</a>: hourly weather file for a single weather-station location (e.g. solar radiation, temperature, wind), not an average over a mapped area. For the Zuidas case we used the <a href="https://climate.onebuilding.org/WMO_Region_6_Europe/NLD_Netherlands/NH_Noord-Holland/NLD_NH_Amsterdam-Schipol.AP.062400_TMYx.zip">Amsterdam–Schiphol Airport TMYx</a> file (WMO 06240) as a regional climate approximation (~8–9&nbsp;km from Zuidas).
+
+<!-- - `xxx.py`: a Python script for importing traffic data exported from OmniTRANS. **QGIS** is used to read the OmniTRANS export; this script runs in QGIS. -->
 
 
 
@@ -127,16 +123,16 @@ Three main software programmes, which can also be seen as 'platforms', are used.
 <strong><em><a href="https://sumo.dlr.de/docs/index.html#introduction"><img src="https://www.google.com/s2/favicons?domain=sumo.dlr.de&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">SUMO</a></em></strong>, and <strong><em><a href="https://www.python.org/"><img src="https://www.google.com/s2/favicons?domain=python.org&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Python</a></em></strong>. Most environmental workflows start from the Rhino ecosystem:
 
 - <a href="https://www.rhino3d.com/"><img src="https://www.google.com/s2/favicons?domain=rhino3d.com&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Rhino</a> is a 3D modelling environment. It has many plugins, and plugins' plugins (See [Food4Rhino](https://www.food4rhino.com/en)). One powerful <strong>Rhino plugin</strong> is Grasshopper:
-    - <a href="https://www.grasshopper3d.com/"><img src="https://www.google.com/s2/favicons?domain=grasshopper3d.com&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Grasshopper</a> — visual scripting plugin inside Rhino; orchestrates data preparation and simulation workflows. Grasshopper has many plugins.
+    - <a href="https://www.grasshopper3d.com/"><img src="https://www.google.com/s2/favicons?domain=grasshopper3d.com&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Grasshopper</a>: visual scripting plugin inside Rhino; orchestrates data preparation and simulation workflows. Grasshopper has many plugins.
 - **Grasshopper plugins** used:
-  - <a href="https://www.ladybug.tools/"><img src="https://www.google.com/s2/favicons?domain=ladybug.tools&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Ladybug</a> — sunlight simulation
-  - <a href="https://www.food4rhino.com/en/app/pachyderm-acoustical-simulation"><img src="https://www.google.com/s2/favicons?domain=pachyderm.co&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Pachyderm Acoustics</a> — traffic noise simulation
-  - <a href="https://eddy3d.com/"><img src="https://www.google.com/s2/favicons?domain=eddy3d.com&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Eddy3D</a> — outdoor wind simulation (connects to the CFD backend below)
+  - <a href="https://www.ladybug.tools/"><img src="https://www.google.com/s2/favicons?domain=ladybug.tools&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Ladybug</a>: sunlight simulation
+  - <a href="https://www.food4rhino.com/en/app/pachyderm-acoustical-simulation"><img src="https://www.google.com/s2/favicons?domain=pachyderm.co&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Pachyderm Acoustics</a>: traffic noise simulation
+  - <a href="https://eddy3d.com/"><img src="https://www.google.com/s2/favicons?domain=eddy3d.com&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">Eddy3D</a>: outdoor wind simulation (connects to the CFD backend below)
 
 
 - **CFD (computational fluid dynamics) backend** (used by Eddy3D for wind and pollution):
-  - <a href="https://openfoam.org/"><img src="https://www.google.com/s2/favicons?domain=openfoam.org&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">OpenFOAM</a> — open-source CFD solver
-  - <a href="https://bluecfd.github.io/Core/"><img src="https://www.google.com/s2/favicons?domain=bluecfd.github.io&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">blueCFD-Core</a> — Windows distribution of OpenFOAM 8, used for pollution post-processing
+  - <a href="https://openfoam.org/"><img src="https://www.google.com/s2/favicons?domain=openfoam.org&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">OpenFOAM</a>: open-source CFD solver
+  - <a href="https://bluecfd.github.io/Core/"><img src="https://www.google.com/s2/favicons?domain=bluecfd.github.io&sz=32" width="16" height="16" style="vertical-align: text-bottom; margin-right: 3px;" alt="">blueCFD-Core</a>: Windows distribution of OpenFOAM 8
 
 
 
@@ -145,8 +141,19 @@ Three main software programmes, which can also be seen as 'platforms', are used.
 
 Recommended **software installation order:** Rhino (Grasshopper included) → Ladybug, Pachyderm Acoustics, Eddy3D → blueCFD-Core (OpenFOAM included) → Python → SUMO.
 
-Prior to this project, the relevant tools have **two levels of isolation**: (1) **Platform level** — Rhino, SUMO, Python (e.g. the macroscopic pedestrian model), and QGIS. Python scripts can run standalone, but Rhino and SUMO also support Python execution or interaction; (2) **Plugin level** — separate Grasshopper plugins inside Rhino (Ladybug, Eddy3D, Pachyderm Acoustics, etc.). Several Python and Grasshopper scripts are developed in this projects. 
-These **[Python scripts](#python-scripts)** bridge workflows across the first level; **[Grasshopper scripts](#grasshopper-scripts)** bridge workflows across the second.
+Prior to this project, the relevant tools have **two levels of isolation**: (1) **Software / platform level**: Rhino, SUMO, Python (e.g. the macroscopic pedestrian model), and QGIS. Python scripts can run standalone, but Rhino and SUMO also support Python execution or interaction; (2) **Plugin level**: separate Grasshopper plugins inside Rhino (Ladybug, Eddy3D, Pachyderm Acoustics, etc.). Self-developed **Python scripts** bridge the software / platform level; **Grasshopper scripts** bridge the plugin level. They are listed in each simulation section. The snapshots below are demonstrative.
+
+<p align="center">
+  <a href="./figures/snapshot_of_gh_scripts.png" target="_blank">
+  <img src="./figures/snapshot_of_gh_scripts.png" alt="Snapshot of Grasshopper scripts" width="800"/>
+  </a>
+</p>
+<p align="center">Figure 2. Snapshot of Grasshopper scripts (demonstrative)</p>
+
+<p align="center">
+  <!-- Add figures/snapshot_of_py_scripts.png when available -->
+</p>
+<p align="center">Figure 3. Snapshot of Python scripts (demonstrative)</p>
 
 
 
@@ -161,7 +168,7 @@ These **[Python scripts](#python-scripts)** bridge workflows across the first le
 
 For macroscopic pedestrian flow simulation, we use a macroscopic pedestrian model, **PedMac**, which was developed in parallel with this project. This software has not been open-sourced yet. You can use **[UNA](https://cityform.mit.edu/projects/una-rhino-toolbox)** (Urban Network Analysis) as an alternative.
 
-PedMac predicts pedestrian flow on a road network and is applicable to areas of several square kilometres. It is based on a three-step modelling approach — travel demand, trip distribution, and route assignment — with corresponding outputs: *travel demand* at origins, an *origin–destination (OD) matrix* (which can feed [microscopic pedestrian models](#3-microscopic-pedestrian-flow-simulation)), and ***pedestrian flows*** on road links (i.e., the hourly number of pedestrians that pass each road segment). 
+PedMac predicts pedestrian flow on a road network and is applicable to areas of several square kilometres. It is based on a three-step modelling approach: travel demand, trip distribution, and route assignment. The corresponding outputs are *travel demand* at origins, an *origin–destination (OD) matrix* (which can feed [microscopic pedestrian models](#3-microscopic-pedestrian-flow-simulation)), and ***pedestrian flows*** on road links (the hourly number of pedestrians that pass each road segment). 
 
 
 
@@ -198,7 +205,7 @@ PedMac predicts pedestrian flow on a road network and is applicable to areas of 
 <!-- (this software is in the form of Python script) -->
 
 
-Figure xxx. The output of PedMac prediction — pedestrian flow in road networks 
+Figure xxx. The output of PedMac prediction: pedestrian flow in road networks 
 
 
 ## 3. Microscopic pedestrian flow simulation
@@ -226,9 +233,11 @@ Figure xxx. The output of PedMac prediction — pedestrian flow in road networks
 </table>
 
 <p style="margin-top: 8px; margin-left: 1.5em; padding-left: 0.5em; font-size: 0.9em; color: #666; line-height: 1.5;">
-  <sup>1</sup> Macroscopic pedestrian flow output data. Use xxx Python script to export from xxx as input for this microscopic pedestrian simulation.<br>
+  <sup>1</sup> Macroscopic pedestrian flow output data.<br>
   <sup>2</sup> Actually, it is 2.5D in transport simulation xxx xxx.
 </p>
+
+- `xxx.py`: a Python script to export the PedMac OD matrix as input for this microscopic pedestrian simulation.
 
 
 ## 4. Sunlight simulation
@@ -253,6 +262,8 @@ Figure xxx. The output of PedMac prediction — pedestrian flow in road networks
 
 ^1 climate data, or simply the geographical coordinates are enough?
 
+- `xxx.gh`: a Grasshopper script for sunlight simulation.
+
 
 ## 5. Wind simulation
 
@@ -274,6 +285,8 @@ Outdoor wind field and comfort indicators; also the base case for pollution and 
     </tr>
   </tbody>
 </table>
+
+- `xxx.gh`: a Grasshopper script for wind simulation (adapted from an Eddy3D official template).
 
 
 
@@ -299,6 +312,9 @@ Passive-scalar traffic pollution on top of an Eddy3D wind case (OpenFOAM 8 / blu
   </tbody>
 </table>
 
+- `xxx.gh`: a Grasshopper script for pollution simulation. Use together with `xxx.py`.
+- `xxx.py`: a Python script for processing the pollution simulation.
+
 
 ## 7. Urban heat simulation
 
@@ -321,11 +337,14 @@ UTIC: xxx xxx
   </tbody>
 </table>
 
+- `xxx.gh`: a Grasshopper script for heat simulation.
+
 
 
 
 ## 8. Traffic noise simulation
 
+Guidance for running this in Rhino! xxx xxx xxx
 
 <table style="border-collapse: collapse; width: 100%; border: 0px solid #2b5c8f;">
   <thead>
@@ -345,7 +364,7 @@ UTIC: xxx xxx
 </table>
 
 <p style="margin-top: 8px; margin-left: 0.6em; padding-left: 0.5em; font-size: 0.9em; color: #666; line-height: 1.5;">
-<sup>1</sup> Pachyderm Acoustics works as a plugin in both Rhino and Grasshopper. For outdoor simulation, however, only <a href="https://discourse.mcneel.com/t/acoustic-study-for-street-noise/212411/2">the Rhino version</a> works. When setting it up, use a large resolution (e.g. 500&nbsp;cm); otherwise large outdoor scenes will run too slowly.
+<sup>1</sup> Pachyderm Acoustics works as a plugin in both Rhino and Grasshopper. For outdoor simulation, however, only <a href="https://discourse.mcneel.com/t/acoustic-study-for-street-noise/212411/2">the Rhino version works</a>. When setting it up, use a large resolution (e.g. 500&nbsp;cm); otherwise large outdoor scenes will run too slowly.
 </p>
 
 
@@ -394,27 +413,11 @@ For visual quality assessment:
 <em><sup>1</sup> Street design</em> here means a 3D file with <em>buildings</em>, <em>trees</em>, and <em>walkable areas</em> modelled in it.
 </p>
 
+- `xxx.py`: a Python script for visual quality assessment. Use together with the `.3dm` template file: xxx.
 
 
-## Appendix 1. Grasshopper and Python scripts
 
-### Grasshopper scripts
-
-Grasshopper scripts developed in this project organise the environmental workflows (sunlight, wind, pollution, and related post-processing) on one canvas:
-
-<p align="center">
-  <a href="./figures/snapshot_of_gh_scripts.png" target="_blank">
-  <img src="./figures/snapshot_of_gh_scripts.png" alt="Snapshot of Grasshopper scripts for sunlight, wind, and pollution assessment" width="800"/>
-  </a>
-</p>
-<p align="center">Figure 2. Snapshot of Grasshopper scripts (for <em>sunlight, wind, pollution</em> simulations)</p>
-
-### Python scripts
-xxx xxx xxx
-
-Additionally, **QGIS** is used for reading the data exported from OmniTRANS (import data OmniTRANS-exported traffic data into QGIS).
-
-## Appendix 2. Data preparation manual for designer teams
+## Appendix 1. Data preparation manual for designer teams
 
 
 <details>
@@ -426,13 +429,13 @@ Additionally, **QGIS** is used for reading the data exported from OmniTRANS (imp
 <div style="background-color: rgb(247, 246, 246); border-radius: 6px; padding: 16px 20px; margin: 12px 0;">
 
 
-For each **design proposals** or alternative, the following files are needed for conducting the assessment. These files should be provided by the designers.
+For each **design proposals** or alternative, the following files are needed for conducting the assessment. These files should be provided by the **designers**.
 
 ### 1. Data for *macroscopic pedestrian flow* simulation
 
 Aspects involved: road networks, building quantities, building functions, transport nodes, parking space, and areas of green/sport parks. The required data include 2D lines of building profiles and Center lines of new roads are needed:
 
-#### 2D building data 
+#### 2D building data file
 
 Provide 2D building profile lines with **attribute user text** documenting:
 
@@ -459,8 +462,9 @@ Our pedestrian model snaps each building’s information to its nearest road lin
 </p>
 
 
-#### Road network data
+#### Road network data file
 
+See the yellow lines in the following figure:
 <p align="center">
   <a href="./figures/file_prep_figure_2.png" target="_blank">
   <img src="./figures/file_prep_figure_2.png" alt="3D massing with road centerlines" width="600"/>
@@ -477,7 +481,7 @@ Our pedestrian model snaps each building’s information to its nearest road lin
 
 ### 3. Data for *visual quality* assessment
 
-Provide the following *street design data* on separate layers in 3D files:
+Provide the following **street design data** on separate layers in 3D files:
 
 - Walkable areas (e.g. sidewalks, squares)
 - Trees
@@ -492,15 +496,18 @@ Provide the following *street design data* on separate layers in 3D files:
 
 
 
-## Appendix 3. Glossary
+## Appendix 2. Glossary
 
 The target audience of this documentation includes urban *designers* and transport *engineers*, who may not share the same terminology. Below is an explainations of terms:
 
 
 
 ***Software*, *models*, and *algorithms:***
-In this documentation, *software* means a programme or platform you install and run (e.g. Rhino, SUMO, Python); a *model* means a computational or mathematical representation that turns inputs into outputs (e.g. VMA, PedMac) — some use trained weights (machine learning), others use equations and rules without learning; an *algorithm* means the stepwise calculation method itself, usually without trained weights. 
+In this documentation, *software* means a programme or platform you install and run (e.g. Rhino, SUMO, Python); a *model* means a computational or mathematical representation that turns inputs into outputs (e.g. VMA, PedMac). Some models use trained weights (machine learning); others use equations and rules without learning. An *algorithm* means the stepwise calculation method itself, usually without trained weights. 
 The same tool may involve several of these at once (e.g. the VMA *model* runs inside OmniTRANS *software* using assignment *algorithms*). 
+<!-- For simplicity, we use software in this documentation. -->
+
+
 
 ***Scripts:***
 A *script* is a short custom programme that automates a workflow. *Python* is both *software* and a coding language; Python scripts run in Python (standalone) or inside platforms such as Rhino and SUMO. *Grasshopper* is a visual scripting environment inside Rhino; Grasshopper scripts (canvases of linked components) automate Rhino-based workflows without writing conventional text code.
@@ -509,10 +516,10 @@ A *script* is a short custom programme that automates a workflow. *Python* is bo
 Designers often call 3D building files a “model” (e.g. a Rhino or SketchUp model); in this documentation those geometric inputs are called *3D building geometries* (or *3D data*), while *model* is reserved for computational models. 
 
 
-***Simulation, prediction*, or *analysis:*** xxx xxx xxx
+***Modeling, simulation, prediction*, or *analysis:*** xxx xxx xxx
 
 ## Contributions
 Innovation: The framework, and the custom pieces developed in this project. The pieces include Grasshopper and Python scripts, user guidance. 
-The workflow which includes the framework, the user guidance, and scripts, as a "soft" form of digital twins.
+The workflow, which includes the user guidance and software scripts, serve as a "soft" form of digital twins.
 Authors: Chen Enshan, Jie Gao, Maaike Snelder, Vincent Gong. This project is part of the [federated digital twins](https://www.sciencedirect.com/science/article/pii/S0965856426002272) in the [XCarCity](https://xcarcity.nl/)
 

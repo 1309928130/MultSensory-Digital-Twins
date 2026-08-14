@@ -19,7 +19,7 @@ Workflow documentation for the **multisensory user experience assessment** frame
 | [7](#7-urban-heat-simulation) | Urban heat |
 | [8](#8-noise) | Noise |
 | [9](#9-visibility-and-visual-quality-assessment) | Visibility and visual quality |
-| [A](#appendix) | Appendix (scripts, designer teams, glossary) |
+| [A](#appendix) | Appendix (data preparation, glossary) |
 
 Each simulation section includes a brief **Data | Software | Output** table at the top.
 
@@ -31,7 +31,7 @@ Each simulation section includes a brief **Data | Software | Output** table at t
 |------|---------|
 | `figures/framework_overall.png` | §1 workflow (Figure 1) |
 | `figures/file_prep_figure_1.png`, `figures/file_prep_figure_2.png` | §1 file preparation |
-| `figures/snapshot_of_gh_scripts.png` | §1 software (Grasshopper) |
+| `figures/snapshot_of_gh_scripts.png` | §1 software (Grasshopper, demonstrative) |
 | `figures/Result1.png`, `figures/Result2.png` | Optional examples |
 
 ---
