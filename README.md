@@ -13,6 +13,7 @@ This project presents an workflow, or assessment framework, **AMUSE**, for **A**
 ## Table of Contents
 
 - [1. Introduction and overview](#1-introduction-and-overview)
+- [Initial results](#initial-results)
 - [2. Macroscopic pedestrian flow simulation](#2-macroscopic-pedestrian-flow-simulation)
 - [3. Microscopic pedestrian flow simulation](#3-microscopic-pedestrian-flow-simulation)
 - [4. Sunlight simulation](#4-sunlight-simulation)
@@ -23,7 +24,8 @@ This project presents an workflow, or assessment framework, **AMUSE**, for **A**
 - [9. Visibility and visual quality assessment](#9-visibility-and-visual-quality-assessment)
 - [Appendix 1. Data preparation manual for designer teams](#appendix-1-data-preparation-manual-for-designer-teams)
 - [Appendix 2. Glossary](#appendix-2-glossary)
-- [Contributions](#Contributions)
+- [Appendix 3. Complementary design generation with Mycelium](#appendix-3-complementary-design-generation-with-mycelium)
+- [Contributions](#contributions)
 
 ## 1. Introduction and overview
 
@@ -163,6 +165,40 @@ Prior to this project, the relevant tools have **two levels of isolation**: (1) 
 
 
 
+
+## Initial results
+
+<a id="initial-results"></a>
+
+*Temporary section.* Example outputs from the AMUSE workflow on a Zuidas case study. In the final version, each result will be shown in its corresponding simulation section (§§2–9). Click any figure to open the full-resolution PDF.
+
+<p align="center">
+  <a href="./figures/QQ20260901-144020.pdf" target="_blank">
+  <img src="./figures/QQ20260901-144020.png" alt="Initial AMUSE results: macroscopic pedestrian flow, sunlight, wind, and heat" width="800"/>
+  </a>
+</p>
+<p align="center">Figure A. Macroscopic pedestrian flow, sunlight, wind, and urban heat (panels 11–14).</p>
+
+<p align="center">
+  <a href="./figures/QQ20260902-134624.pdf" target="_blank">
+  <img src="./figures/QQ20260902-134624.png" alt="Initial AMUSE results: SUMO microscopic simulation in the digital twin viewer" width="800"/>
+  </a>
+</p>
+<p align="center">Figure B. Microscopic pedestrian simulation (SUMO) in the federated digital-twin viewer — building functions, wind, and traffic heatmap.</p>
+
+<p align="center">
+  <a href="./figures/QQ20260902-134802.pdf" target="_blank">
+  <img src="./figures/QQ20260902-134802.png" alt="Initial AMUSE results: traffic pollution and noise" width="800"/>
+  </a>
+</p>
+<p align="center">Figure C. Traffic pollution and traffic noise (panels 15–16).</p>
+
+<p align="center">
+  <a href="./figures/QQ20260902-134819.pdf" target="_blank">
+  <img src="./figures/QQ20260902-134819.png" alt="Initial AMUSE results: visibility, visual quality, expert judgment, and multi-layer overlap" width="800"/>
+  </a>
+</p>
+<p align="center">Figure D. Visibility, visual quality, designer judgment, and multi-layer overlap (flow + sunlight; panels 17–18).</p>
 
 ## 2. Macroscopic pedestrian flow simulation
 
@@ -498,6 +534,8 @@ Provide the following **street design data** on separate layers in 3D files:
 
 ## Appendix 2. Glossary
 
+<a id="appendix-2-glossary"></a>
+
 The target audience of this documentation includes urban *designers* and transport *engineers*, who may not share the same terminology. Below is an explainations of terms:
 
 
@@ -518,7 +556,34 @@ Designers often call 3D building files a “model” (e.g. a Rhino or SketchUp m
 
 ***Modeling, simulation, prediction*, or *analysis:*** xxx xxx xxx
 
+## Appendix 3. Complementary design generation with Mycelium
+
+<a id="appendix-3-complementary-design-generation-with-mycelium"></a>
+
+AMUSE is a **design assessment** workflow: it evaluates design proposals (or case-study alternatives) on multisensory user-experience indicators. It does not generate proposals itself.
+
+A natural complement is a **design generation** tool that produces urban morphologies that can then be prepared (see [Appendix 1](#appendix-1-data-preparation-manual-for-designer-teams)) and assessed with AMUSE.
+
+**[Mycelium](https://www.linkedin.com/posts/ilkerkaradag_mycelium-grasshopper3d-rhino3d-ugcPost-7494389830043426816-mYDX)** (Karadag & Kastner) is a free Rhinoceros / Grasshopper plugin for reproducible procedural 3D urban morphologies. It supports configurable street layouts, building typologies, parks, courtyards, vegetation, terrain, urban morphology metrics, and seeded generation. It is aimed at synthetic dataset generation and surrogate modelling, and fits the same Rhino / Grasshopper environment used in several AMUSE modules.
+
+Suggested coupling:
+
+1. **Generate** one or more design alternatives with Mycelium in Rhino / Grasshopper.
+2. **Prepare** the required 2D / 3D inputs for AMUSE (buildings, roads, functions, etc.) following [Appendix 1](#appendix-1-data-preparation-manual-for-designer-teams).
+3. **Assess** the alternatives with the AMUSE workflow (pedestrian flow, sunlight, wind, pollution, heat, noise, visibility / visual quality).
+
+Resources:
+
+- Announcement: [LinkedIn post](https://www.linkedin.com/posts/ilkerkaradag_mycelium-grasshopper3d-rhino3d-ugcPost-7494389830043426816-mYDX)
+- Download: [Rhino Packages — Mycelium](https://rhinopackages.github.io/?p=Mycelium)
+- Preprint: [Karadag & Kastner (2026), SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7265858)
+
+Mycelium is third-party software; AMUSE does not bundle or maintain it. Integration here means a recommended **generate → prepare → assess** sequence, not a single automated pipeline (yet).
+
 ## Contributions
+
+<a id="contributions"></a>
+
 Innovation: The framework, and the custom pieces developed in this project. The pieces include Grasshopper and Python scripts, user guidance. 
 The workflow, which includes the user guidance and software scripts, serve as a "soft" form of digital twins.
 Authors: Chen Enshan, Jie Gao, Maaike Snelder, Vincent Gong. This project is part of the [federated digital twins](https://www.sciencedirect.com/science/article/pii/S0965856426002272) in the [XCarCity](https://xcarcity.nl/)
