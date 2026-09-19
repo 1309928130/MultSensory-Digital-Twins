@@ -8,6 +8,8 @@
 
 This project presents an workflow, or assessment framework, **AMUSE**, for **A**ssessing **M**ultisensory **US**er **E**xperience.
 
+**Live viewer: <https://multisensory-digital-twin.web.app/>** · **Source: <https://github.com/1309928130/amuse-digital-twin>**
+
 
 
 ## Table of Contents
@@ -22,6 +24,7 @@ This project presents an workflow, or assessment framework, **AMUSE**, for **A**
 - [7. Urban heat simulation](#7-urban-heat-simulation)
 - [8. Traffic noise simulation](#8-traffic-noise-simulation)
 - [9. Visibility and visual quality assessment](#9-visibility-and-visual-quality-assessment)
+- [10. Federated digital-twin visualization](#10-federated-digital-twin-visualization)
 - [Appendix 1. Data preparation manual for designer teams](#appendix-1-data-preparation-manual-for-designer-teams)
 - [Appendix 2. Glossary](#appendix-2-glossary)
 - [Appendix 3. Complementary design generation with Mycelium](#appendix-3-complementary-design-generation-with-mycelium)
@@ -173,32 +176,25 @@ Prior to this project, the relevant tools have **two levels of isolation**: (1) 
 *Temporary section.* Example outputs from the AMUSE workflow on a Zuidas case study. In the final version, each result will be shown in its corresponding simulation section (§§2–9). Click any figure to open the full-resolution PDF.
 
 <p align="center">
-  <a href="./figures/QQ20260901-144020.pdf" target="_blank">
-  <img src="./figures/QQ20260901-144020.png" alt="Initial AMUSE results: macroscopic pedestrian flow, sunlight, wind, and heat" width="800"/>
-  </a>
-</p>
-<p align="center">Figure A. Macroscopic pedestrian flow, sunlight, wind, and urban heat (panels 11–14).</p>
-
-<p align="center">
   <a href="./figures/QQ20260902-134624.pdf" target="_blank">
   <img src="./figures/QQ20260902-134624.png" alt="Initial AMUSE results: SUMO microscopic simulation in the digital twin viewer" width="800"/>
   </a>
 </p>
-<p align="center">Figure B. Microscopic pedestrian simulation (SUMO) in the federated digital-twin viewer — building functions, wind, and traffic heatmap.</p>
+<p align="center">Figure A. Microscopic pedestrian simulation (SUMO) in the federated digital-twin viewer — building functions, wind, and traffic heatmap.</p>
 
 <p align="center">
   <a href="./figures/QQ20260902-134802.pdf" target="_blank">
   <img src="./figures/QQ20260902-134802.png" alt="Initial AMUSE results: traffic pollution and noise" width="800"/>
   </a>
 </p>
-<p align="center">Figure C. Traffic pollution and traffic noise (panels 15–16).</p>
+<p align="center">Figure B. Traffic pollution and traffic noise (panels 15–16).</p>
 
 <p align="center">
   <a href="./figures/QQ20260902-134819.pdf" target="_blank">
   <img src="./figures/QQ20260902-134819.png" alt="Initial AMUSE results: visibility, visual quality, expert judgment, and multi-layer overlap" width="800"/>
   </a>
 </p>
-<p align="center">Figure D. Visibility, visual quality, designer judgment, and multi-layer overlap (flow + sunlight; panels 17–18).</p>
+<p align="center">Figure C. Visibility, visual quality, designer judgment, and multi-layer overlap (flow + sunlight; panels 17–18).</p>
 
 ## 2. Macroscopic pedestrian flow simulation
 
@@ -241,7 +237,9 @@ PedMac predicts pedestrian flow on a road network and is applicable to areas of 
 <!-- (this software is in the form of Python script) -->
 
 
-Figure xxx. The output of PedMac prediction: pedestrian flow in road networks 
+Figure xxx. The output of PedMac prediction: pedestrian flow in road networks
+
+PedMac link flows and trip-generation demand can also be inspected in the [federated digital-twin visualization](#10-federated-digital-twin-visualization) (§10), including hover tooltips with hourly flow profiles.
 
 
 ## 3. Microscopic pedestrian flow simulation
@@ -262,7 +260,7 @@ Figure xxx. The output of PedMac prediction: pedestrian flow in road networks
         <em>&bull; Origin–destination (OD) matrix<sup>1</sup></em><br>
         <em>&bull; 3D road data<sup>2</sup></em>
       </td>
-      <td style="border: 0px solid #cbd5e1; padding: 4px 10px;"><em>SUMO</em> or <em>MassMotion</em></td>
+      <td style="border: 0px solid #cbd5e1; padding: 4px 10px;"><em>SUMO</em>, <em>MassMotion</em> or <em>Kova PedSim</em></td>
       <td style="border: 0px solid #cbd5e1; padding: 4px 10px;"><em>Travel time</em> and detailed pedestrian <em>flows / trajectories</em></td>
     </tr>
   </tbody>
@@ -273,7 +271,69 @@ Figure xxx. The output of PedMac prediction: pedestrian flow in road networks
   <sup>2</sup> Actually, it is 2.5D in transport simulation xxx xxx.
 </p>
 
-- `xxx.py`: a Python script to export the PedMac OD matrix as input for this microscopic pedestrian simulation.
+The microscopic simulation was migrated from SUMO/MassMotion to **Kova PedSim**, a
+Grasshopper plugin, so that the agent simulation runs inside the same modelling
+environment as the rest of the assessment pipeline. The working definition is
+`micro_mobility_simulation_export.ghx`.
+
+Because Kova's simulation objects expose only the inherited `System.Object`
+members to Rhino's Python 3 (their own fields are not reachable from dynamic
+scripting), the export does not read them directly. It goes through the plugin's
+own **Kova Deconstruct Element**, whose `Footpath` output is passed through `Pt`
+and `pDecon` so the trajectories arrive at the exporter as plain numbers.
+
+- `tools/gh_export_footpaths.py`: a Python 3 Script component that converts the
+  simulation output into the viewer's JSON format
+  (`simulation_data/proposal-1/agent_trajectories.json`). Its `report` output
+  prints a running total as it appends, one agent per evaluation.
+
+To export a run:
+
+1. Set the `xs` / `ys` / `zs` inputs of the Python component to **List Access**.
+   On Item Access the component runs once per coordinate instead of once per
+   agent, and the export is silently fragmented.
+2. Reload the web viewer. The micro-mobility page picks the trajectories up
+   automatically.
+
+> **Before each new run, delete `agent_trajectories.json`.**
+> The export **appends**, because Grasshopper calls the component once per agent
+> and it cannot tell a fresh run from a repeat. Run the simulation twice without
+> deleting the file and you get **150 agents instead of 75** — with no error, and
+> a report that reads "total 150 agents". The first line of the report reads
+> `STARTED FILE:` when the file was genuinely empty; if a fresh run does not
+> start with that, the old file is still there.
+
+### Notes on the agent data
+
+- **Coordinates.** Trajectories are exported in Rhino model metres (EPSG:28992,
+  RD New) and transformed to WGS84 with the same local affine used by the wind
+  and pollution builds, minus their `CASE_OFFSET`.
+- **Time.** Kova advances in discrete iterations and defines no seconds value, so
+  speeds are per-iteration distances divided by a **nominal** seconds-per-iteration
+  constant, calibrated so that the run's median speed is a plausible walking pace.
+  The metadata records `speed_unit_base: "nominal"` so the figures are not mistaken
+  for measurements. They are indicative, not measured.
+- **Elevation.** The deconstructor's `Z` output is currently zero for every point,
+  so elevation carries no information and is omitted from the export.
+- **Avatars.** Trajectories are rendered as rigged walking figures: Quaternius'
+  *Universal Animation Library* (CC0), one character shared by all agents and
+  tinted per agent so a crowd reads as several people. Only its `Walk_Loop` clip
+  is kept, because Cesium's `runAnimations` is a boolean that plays every clip in
+  a file at once and cannot select one by name; the other 42 clips are removed
+  from the asset by `tools/prune_glb_animations.py`. An earlier character pack was
+  abandoned because its FBX conversion expressed the unit conversion as a
+  `scale: 100` on the armature, which Cesium rendered a hundred times too large
+  while reporting a normal-sized bounding sphere.
+- **The walk cycle is driven by the scene clock.** Cesium computes a clip's pose
+  from the scene time alone, so the viewer advances its clock from the same tick
+  that moves the agents. This keeps the stride tied to the ground covered and lets
+  the speed control govern both. The clock is stopped again when the layer is
+  hidden, so it does not run for other time-dependent layers.
+- **Route lines.** The agent paths are drawn as lines only when *Route lines* is
+  ticked in the Layers panel. They are **off by default**: Kova re-plans every
+  iteration, so a full run traces a dense grid over the street that hides the
+  agents it is meant to explain. They remain available as a debugging aid, and
+  hiding them does not affect the agents or the animation.
 
 
 ## 4. Sunlight simulation
@@ -290,16 +350,49 @@ Figure xxx. The output of PedMac prediction: pedestrian flow in road networks
   <tbody>
     <tr style="background-color: rgb(247, 246, 246);">
       <td style="border: 0px solid #cbd5e1; padding: 4px 10px;"><em>&bull; 3D building geometries</em><br><em>&bull; Climate data^1</em> (EPW or equivalent)</td>
-      <td style="border: 0px solid #cbd5e1; padding: 4px 10px;"><em>Ladybug</em></td>
-      <td style="border: 0px solid #cbd5e1; padding: 4px 10px;">Value of <em>sunlight hours</em> at each point</td>
+      <td style="border: 0px solid #cbd5e1; padding: 4px 10px;"><em>Ladybug</em> (Rhino + Grasshopper)</td>
+      <td style="border: 0px solid #cbd5e1; padding: 4px 10px;">Coloured <em>sunlight-hours</em> mesh (GLB) for the web viewer</td>
     </tr>
   </tbody>
 </table>
 
 ^1 climate data, or simply the geographical coordinates are enough?
 
-- `xxx.gh`: a Grasshopper script for sunlight simulation.
+- Grasshopper definition: `XCarCity/Grasshopper_scripts.ghx` (Ladybug **LB Direct Sun Hours**).
+- Web viewer layer: **Sunlight** checkbox in `visualization/` (loads `visualization/simulation_data/sunlight/sunlight_analysis_wgs84ready.glb` and temporarily hides design GLBs).
 
+### Export pipeline (bake → GLB → web)
+
+1. Run Direct Sun Hours with a dense analysis mesh (see pitfall below).
+2. Bake the coloured **`mesh`** output into Rhino:
+   - Layer: dedicated layer such as `LB_sunhours` (not `PM_BUILDINGS`).
+   - **Colour: not “By Layer”** (keep mesh / Ladybug colours).
+   - Group: optional but useful.
+3. If Rhino warns about an invalid mesh, choose **Bake invalid object** once (do not pick “stop asking” unless you intend to).
+4. Export the baked mesh as **glTF/GLB** into `visualization_data/` (e.g. `sunlight_analysis.glb`), then copy into the web app `simulation_data/sunlight/` (re-center for Cesium if the GLB still uses absolute RD coordinates).
+
+<p align="center">
+  <img src="./figures/sunlight_bake_attributes.png" alt="Grasshopper bake Attributes: LB_sunhours layer, colour not by layer, group enabled" width="220"/>
+</p>
+<p align="center">Figure. Bake Attributes — use layer <code>LB_sunhours</code>, uncheck Colour “By Layer”, optionally group.</p>
+
+<p align="center">
+  <img src="./figures/sunlight_bake_invalid_geometry.png" alt="Rhino dialog: You are about to bake an invalid mesh" width="220"/>
+</p>
+<p align="center">Figure. Invalid-mesh bake dialog — select “Bake invalid object” if the Ladybug mesh is flagged invalid.</p>
+
+### Pitfall: analysis resolution follows the Rhino mesh, not only `_grid_size`
+
+Ladybug **LB Direct Sun Hours** colours faces of the analysis mesh. A common mistake is to keep tuning the Grasshopper `_grid_size` slider when the ground (or other surfaces) still looks flat / under-resolved (e.g. a single solid colour over a whole courtyard).
+
+**What actually controls detail:** how many faces the mesh already has. That density comes from the **Rhino surface UV subdivisions** used when the mesh was built from the surface (or from how the mesh was reconstructed). More UV / mesh sub-pieces → more sample faces → a finer coloured map. If the input mesh is coarse, changing `_grid_size` alone will not create a detailed sunlight field.
+
+**Practical checklist:**
+
+1. In Rhino, increase surface **UV** (or rebuild / remesh the ground and façades) so the analysis mesh has enough faces at street scale.
+2. For **ground-level** hours: put the **ground** in `_geometry` and **buildings only** in `context_` (do not also put the ground in `context_`, or self-shadowing can zero out the results).
+3. The Ladybug sun-path graphic often draws at the Rhino origin; that is only a diagram. Direct-sun rays use **direction vectors** and still apply correctly to geometry far from the origin (e.g. RD New coordinates).
+4. For web display: prefer exporting the **baked coloured mesh as GLB**. Re-export with **vertex colours** preserved if the GLB shows a flat material colour instead of the Ladybug falsecolour.
 
 ## 5. Wind simulation
 
@@ -450,6 +543,80 @@ For visual quality assessment:
 </p>
 
 - `xxx.py`: a Python script for visual quality assessment. Use together with the `.3dm` template file: xxx.
+
+
+
+## 10. Federated digital-twin visualization
+
+<a id="10-federated-digital-twin-visualization"></a>
+
+AMUSE outputs are brought together in a Cesium-based 3D viewer under [`visualization/`](../../visualization/). The viewer overlays PedMac macroscopic results with environmental layers (urban heat, wind) and transit / SUMO content on the same Zuidas scene, so design alternatives can be compared spatially.
+
+**Live viewer: <https://multisensory-digital-twin.web.app/>** — a hosted build of this viewer. Source: <https://github.com/1309928130/amuse-digital-twin>.
+
+### PedMac layers in the viewer
+
+| Toggle (Visualizations panel) | Source data | What you see |
+|---|---|---|
+| **Network Flow** | Hourly edge flows from PedMac assignment (`output/model_runs/edge_flows_from_cell66_3__*.parquet`) joined to `output/network/G_projected.graphml` | Road links coloured and thickened by daily pedestrian volume (YlOrRd). **Click** a link to see **daily total** and the **24-hour flow profile**. |
+| **Pedestrian Demand** | Trip generation (`output/generated_trips.csv`) | Heatmap of daily generated trips at network / building snap locations (same family of maps as `heatmap.html` / `output/heatmap_demand_*.html`). |
+| **Urban Heat** | Grasshopper / Ladybug export (`visualization/simulation_data/simulation_results_heat_wgs84.csv`) | Street-level heat field as vector glyphs. |
+
+Standalone Folium HTML maps remain available for 2D inspection (`heatmap.html`, `output/network/flow_network_map.html`). The Cesium layers are the federated counterparts of those PedMac outputs.
+
+### Click: hourly flow
+
+With **Network Flow** enabled, **click** a coloured link (hover does nothing). A tooltip shows:
+
+- Link name / highway type and edge key `(u, v, k)`
+- Daily flow (sum of hourly volumes)
+- Bar chart of pedestrians per hour for hours `00`–`23` (peak hour highlighted)
+
+Click empty ground, or the tooltip **×**, to dismiss. This matches the hourly breakdown previously only available in the Folium flow-map popups.
+
+<h3 id="multi-layer-overlap">Multi-layer overlap: why the layers are independent</h3>
+
+The **multi-layer overlap** page switches every layer on at once so the assessment results can be compared at the same locations. It is important to read that view correctly: **the layers come from independent assessments.** They are not correlated, and their agreement or disagreement carries no statistical meaning, because the overlay is not one model — it is several separate results drawn on top of one another.
+
+We do **not** have a holistic model built on all the sensory features together. Each quality is produced by its own module, with its own input data, software, assumptions and validation ([§§2–9](#2-macroscopic-pedestrian-flow-simulation)), and each is calibrated on its own. Overlaying them is a *visual* act: by simply putting different assessment qualities together, a designer can compare where qualities are balanced or imbalanced at all the locations across the area being examined. Where two layers coincide or conflict, that is a prompt to investigate further — not evidence that one model confirms, or contradicts, the other.
+
+There are two reasons a holistic model is not available:
+
+- **No dataset contains all the required data together.** Building a holistic model needs every sensory feature measured at the same places and times. In practice, barely any dataset holds those different kinds of data all in one place, and the workflow is deliberately designed for the **design stage**, where case-specific measured data is not available at all (see [§1 Data](#1-introduction-and-overview)).
+- **The assessments run at different scales.** The different qualities are assessed at different **spatial and temporal scales and resolutions** — macroscopic pedestrian flow over a network of several square kilometres, for instance, against a visibility or visual-quality indicator computed along a pedestrian trajectory at eye level. Reconciling those into a single coupled model is not merely laborious; it is hard to define, which is what makes a holistic model hardly possible here.
+
+So the overlap view is a **comparison tool, not a synthesis model**. Its value is that it puts heterogeneous results onto one scene and lets the eye spot spatial patterns — where comfort, movement, and environmental quality line up or work against each other — while each layer's own validity remains exactly what it is on its own page.
+
+### Refreshing PedMac layers after a model run
+
+From the PedModel project root:
+
+```bash
+python tools/export_cesium_pedflow.py
+```
+
+This writes:
+
+- `visualization/simulation_data/network_flow_edges.json`
+- `visualization/simulation_data/pedestrian_demand.json`
+- `visualization/simulation_data/pedflow_manifest.json`
+
+Optional flags: `--flows path/to/edge_flows.parquet`, `--min-flow`, `--pad` (degree padding around the Zuidas bounds).
+
+### Running the viewer
+
+The hosted build is at **<https://multisensory-digital-twin.web.app/>**.
+
+To run it locally:
+
+```bash
+unset LD_LIBRARY_PATH
+cd visualization
+npm start
+# open http://localhost:8080
+```
+
+Enable **Network Flow** and/or **Pedestrian Demand** in the Visualizations panel. Prefer **Analytical Mode** when inspecting coloured overlays without sun shadows.
 
 
 
